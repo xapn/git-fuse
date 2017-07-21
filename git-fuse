@@ -18,12 +18,23 @@ usage() {
         "\tOptional."
 }
 
+printFileNameAsHeader() {
+    # FUNC ARGS
+    local fileName="$1"
+    # END  ARGS
+
+    echo -e \
+        " =================================================================\n" \
+        "File: ${fileName}\n" \
+        "================================================================="
+}
+
 gitFuse() {
     local output="${outputFilePath:=${DEFAULT_OUTPUT}}"
 
     rm "${output}"
     for file in $(find . -type f ! -regex ".*\(\.git/.*\|.swp\)"); do
-        echo "${file}" | tee --append "${output}"
+        echo "$(printFileNameAsHeader ${file})" | tee --append "${output}"
         cat  "${file}" | tee --append "${output}"
     done
 }
