@@ -12,6 +12,10 @@ usage() {
         "OPTIONS\n" \
         "-h, --help\n" \
         "\tDisplay help.\n" \
+        "-n, --no-ignore\n" \
+        "\tDo not ignore files or folders ignored by Git.\n" \
+        "\tBy default, all files or folders ignored by Git are ignored.\n" \
+        "\tOptional.\n" \
         "-o, --output OUTPUT_FILE_PATH\n" \
         "\tStore all contents in the output file with the OUT_FILE_PATH path.\n" \
         "\tBy default, the output file path is '${DEFAULT_OUTPUT}'.\n" \
@@ -50,6 +54,9 @@ main() {
         --help)
             set -- "$@" "-h"
             ;;
+        --no-ignore)
+            set -- "$@" "-n"
+            ;;
         --output)
             set -- "$@" "-o"
             ;;
@@ -59,12 +66,15 @@ main() {
         esac
     done
 
-    local outputFilePath=""
+    local outputFilePath="" noIgnore=false
 
-    while getopts "ho:" option; do
+    while getopts "hno:" option; do
         case "${option}" in
         h)
             usage && exit 0
+            ;;
+        n)
+            noIgnore=true
             ;;
         o)
             outputFilePath="${OPTARG}"
