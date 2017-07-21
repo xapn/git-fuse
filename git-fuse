@@ -1,28 +1,47 @@
 #!/bin/bash
 
+# Default values
+DEFAULT_OUTPUT="output.txt"
+
 usage() {
     local script="$(basename $0)"
 
     echo -e "${script} - Fuse all contents of the current branch into only one file.\n" \
-        "${script} [OPTIONS]\n" \
+        "${script} [OPTIONS] [ARGUMENTS]\n" \
+        "\n" \
         "OPTIONS\n" \
         "-h, --help\n" \
-        "\tDisplay help."
+        "\tDisplay help.\n" \
+        "-o, --output OUTPUT_FILE_PATH\n" \
+        "\tStore all contents in the output file with the OUT_FILE_PATH path.\n" \
+        "\tBy default, the output file path is '${DEFAULT_OUTPUT}'.\n" \
+        "\tOptional."
+}
+
+printFileNameAsHeader() {
+    # FUNC ARGS
+    local fileName="$1"
+    # END  ARGS
+
+    echo -e \
+        " =================================================================\n" \
+        "File: ${fileName}\n" \
+        "================================================================="
 }
 
 gitFuse() {
-    local output="./output.txt"
+    local output="${outputFilePath:=${DEFAULT_OUTPUT}}"
 
     rm "${output}"
     for file in $(find . -type f ! -regex ".*\(\.git/.*\|.swp\)"); do
-        echo "${file}" | tee --append "${output}"
+        echo "$(printFileNameAsHeader ${file})" | tee --append "${output}"
         cat  "${file}" | tee --append "${output}"
     done
 }
 
 main() {
     # FUNC ARGS
-    local args=("$*")
+    local args=("$@")
     # END  ARGS
 
     for arg in "${args[@]}"; do
@@ -31,16 +50,24 @@ main() {
         --help)
             set -- "$@" "-h"
             ;;
+        --output)
+            set -- "$@" "-o"
+            ;;
         *)
             set -- "$@" "${arg}"
             ;;
         esac
     done
 
-    while getopts "h" option; do
+    local outputFilePath=""
+
+    while getopts "ho:" option; do
         case "${option}" in
         h)
             usage && exit 0
+            ;;
+        o)
+            outputFilePath="${OPTARG}"
             ;;
         esac
     done
