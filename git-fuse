@@ -14,8 +14,10 @@ gitFuse() {
     local output="./output.txt"
 
     rm "${output}"
-    find . -type f ! -regex ".*\.git/.*" \
-        -exec echo {} \; | tee --append "${output}"
+    for file in $(find . -type f ! -regex ".*\(\.git/.*\|.swp\)"); do
+        echo "${file}" | tee --append "${output}"
+        cat  "${file}" | tee --append "${output}"
+    done
 }
 
 main() {
