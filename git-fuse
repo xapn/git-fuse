@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Default values
+DEFAULT_OUTPUT="output.txt"
+
 usage() {
     local script="$(basename $0)"
 
@@ -10,11 +13,13 @@ usage() {
         "-h, --help\n" \
         "\tDisplay help.\n" \
         "-o, --output OUTPUT_FILE_PATH\n" \
-        "\tStore all contents in the output file with the OUT_FILE_PATH path."
+        "\tStore all contents in the output file with the OUT_FILE_PATH path.\n" \
+        "\tBy default, the output file path is '${DEFAULT_OUTPUT}'.\n" \
+        "\tOptional."
 }
 
 gitFuse() {
-    local output="${outputFilePath}"
+    local output="${outputFilePath:=${DEFAULT_OUTPUT}}"
 
     rm "${output}"
     for file in $(find . -type f ! -regex ".*\(\.git/.*\|.swp\)"); do
