@@ -4,14 +4,17 @@ usage() {
     local script="$(basename $0)"
 
     echo -e "${script} - Fuse all contents of the current branch into only one file.\n" \
-        "${script} [OPTIONS]\n" \
+        "${script} [OPTIONS] [ARGUMENTS]\n" \
+        "\n" \
         "OPTIONS\n" \
         "-h, --help\n" \
-        "\tDisplay help."
+        "\tDisplay help.\n" \
+        "-o, --output OUTPUT_FILE_PATH\n" \
+        "\tStore all contents in the output file with the OUT_FILE_PATH path."
 }
 
 gitFuse() {
-    local output="./output.txt"
+    local output="${outputFilePath}"
 
     rm "${output}"
     for file in $(find . -type f ! -regex ".*\(\.git/.*\|.swp\)"); do
@@ -22,7 +25,7 @@ gitFuse() {
 
 main() {
     # FUNC ARGS
-    local args=("$*")
+    local args=("$@")
     # END  ARGS
 
     for arg in "${args[@]}"; do
@@ -31,16 +34,24 @@ main() {
         --help)
             set -- "$@" "-h"
             ;;
+        --output)
+            set -- "$@" "-o"
+            ;;
         *)
             set -- "$@" "${arg}"
             ;;
         esac
     done
 
-    while getopts "h" option; do
+    local outputFilePath=""
+
+    while getopts "ho:" option; do
         case "${option}" in
         h)
             usage && exit 0
+            ;;
+        o)
+            outputFilePath="${OPTARG}"
             ;;
         esac
     done
