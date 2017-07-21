@@ -10,6 +10,14 @@ usage() {
         "\tDisplay help."
 }
 
+gitFuse() {
+    local output="./output.txt"
+
+    rm "${output}"
+    find . -type f \
+        -exec echo {} \; | tee --append "${output}"
+}
+
 main() {
     # FUNC ARGS
     local args=("$*")
@@ -30,10 +38,12 @@ main() {
     while getopts "h" option; do
         case "${option}" in
         h)
-            usage
+            usage && exit 0
             ;;
         esac
     done
+
+    gitFuse
 }
 
 main $*
