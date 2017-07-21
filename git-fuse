@@ -14,7 +14,7 @@ gitFuse() {
     local output="./output.txt"
 
     rm "${output}"
-    find . -type f \
+    find . -type f ! -regex ".*\.git/.*" \
         -exec echo {} \; | tee --append "${output}"
 }
 
