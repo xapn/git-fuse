@@ -1,0 +1,51 @@
+#!/bin/bash
+
+usage() {
+    local script="$(basename $0)"
+
+    echo -e "${script} - Fuse all contents of the current branch into only one file.\n" \
+        "${script} [OPTIONS]\n" \
+        "OPTIONS\n" \
+        "-h, --help\n" \
+        "\tDisplay help."
+}
+
+gitFuse() {
+    local output="./output.txt"
+
+    rm "${output}"
+    for file in $(find . -type f ! -regex ".*\(\.git/.*\|.swp\)"); do
+        echo "${file}" | tee --append "${output}"
+        cat  "${file}" | tee --append "${output}"
+    done
+}
+
+main() {
+    # FUNC ARGS
+    local args=("$*")
+    # END  ARGS
+
+    for arg in "${args[@]}"; do
+        shift
+        case "${arg}" in
+        --help)
+            set -- "$@" "-h"
+            ;;
+        *)
+            set -- "$@" "${arg}"
+            ;;
+        esac
+    done
+
+    while getopts "h" option; do
+        case "${option}" in
+        h)
+            usage && exit 0
+            ;;
+        esac
+    done
+
+    gitFuse
+}
+
+main $*
