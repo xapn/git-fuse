@@ -2,6 +2,7 @@
 
 # Default values
 DEFAULT_OUTPUT="output.txt"
+TO_BE_IGNORED_BY_DEFAULT=".*\.git/.*"
 
 usage() {
     local script="$(basename $0)"
@@ -33,11 +34,19 @@ printFileNameAsHeader() {
         "================================================================="
 }
 
+whatToIgnore() {
+    if [ -f ".gitignore" ]; then
+        local ignoredByGit=$(sed -r '/^(#.*)?$/d' .gitignore | paste -sd '|')
+    fi
+    local readyForFind=$(echo "${ignoredByGit}" | sed 's/\./\\./g; s/\*/.*/g; s/|/\\|/g')"\|${TO_BE_IGNORED_BY_DEFAULT}"
+    echo "${readyForFind}"
+}
+
 gitFuse() {
     local output="${outputFilePath:=${DEFAULT_OUTPUT}}"
 
-    rm "${output}"
-    for file in $(find . -type f ! -regex ".*\(\.git/.*\|.swp\)"); do
+    rm -f "${output}"
+    for file in $(find . -type f ! -regex "$(whatToIgnore)"); do
         echo "$(printFileNameAsHeader ${file})" | tee --append "${output}"
         cat  "${file}" | tee --append "${output}"
     done
