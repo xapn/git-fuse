@@ -44,14 +44,22 @@ whatToIgnore() {
     echo "${readyForFind}"
 }
 
+listTargetContents() {
+    # FUNC ARGS
+    local contents=("$@")
+    # END  ARGS
+
+    echo "Target contents for fusion:"
+    printf "\t%s\n" "${contents[@]}"
+}
+
 gitFuse() {
     local output="${outputFilePath:=${DEFAULT_OUTPUT}}"
 
     rm -f "${output}"
 
     local toFuse=($(find . -type f ! -regex "$(whatToIgnore)"))
-    echo "Target contents for fusion:"
-    printf "\t%s\n" "${toFuse[@]}"
+    listTargetContents "${toFuse[@]}"
 
     for file in "${toFuse[@]}"; do
         echo "$(printFileNameAsHeader ${file})" | tee --append "${output}"
