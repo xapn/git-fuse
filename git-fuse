@@ -23,6 +23,10 @@ usage() {
         "\tOptional."
 }
 
+store() {
+    [ -z "${output}" ] && exit 1 || cat | tee --append "${output}"
+}
+
 printFileNameAsHeader() {
     # FUNC ARGS
     local fileName="$1"
@@ -49,13 +53,13 @@ listTargetFiles() {
     local files=("${@:1:$#-1}") output="${@:(-1)}"
     # END  ARGS
 
-    echo "Target files for fusion:" | tee --append "${output}"
+    echo "Target files for fusion:" | store
     {
         for file in "${files[@]}"; do
             printf "%s %s %s\n" "${file}" $(wc -l "${file}" | awk '{ print $1 }') "lines"
         done;
-    } | column -t | tee --append "${output}"
-    echo | tee -a "${output}"
+    } | column -t | store
+    echo | store
 }
 
 gitFuse() {
@@ -67,8 +71,8 @@ gitFuse() {
     listTargetFiles "${toFuse[@]}" "${output}"
 
     for file in "${toFuse[@]}"; do
-        echo "$(printFileNameAsHeader ${file})" | tee --append "${output}"
-        cat  "${file}" | tee --append "${output}"
+        echo "$(printFileNameAsHeader ${file})" | store
+        cat  "${file}" | store
     done
 }
 
