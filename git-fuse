@@ -44,13 +44,18 @@ whatToIgnore() {
     echo "${readyForFind}"
 }
 
-listTargetContents() {
+listTargetFiles() {
     # FUNC ARGS
-    local contents=("$@")
+    local files=("${@:1:$#-1}") output="${@:(-1)}"
     # END  ARGS
 
-    echo "Target contents for fusion:"
-    printf "\t%s\n" "${contents[@]}"
+    echo "Target files for fusion:" | tee --append "${output}"
+    {
+        for file in "${files[@]}"; do
+            printf "%s %s %s\n" "${file}" $(wc -l "${file}" | awk '{ print $1 }') "lines"
+        done;
+    } | column -t | tee --append "${output}"
+    echo | tee -a "${output}"
 }
 
 gitFuse() {
@@ -59,7 +64,7 @@ gitFuse() {
     rm -f "${output}"
 
     local toFuse=($(find . -type f ! -regex "$(whatToIgnore)"))
-    listTargetContents "${toFuse[@]}"
+    listTargetFiles "${toFuse[@]}" "${output}"
 
     for file in "${toFuse[@]}"; do
         echo "$(printFileNameAsHeader ${file})" | tee --append "${output}"
