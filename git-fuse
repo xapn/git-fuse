@@ -20,6 +20,10 @@ usage() {
         "-o, --output OUTPUT_FILE_PATH\n" \
         "\tStore all contents in the output file with the OUT_FILE_PATH path.\n" \
         "\tBy default, the output file path is '${DEFAULT_OUTPUT}'.\n" \
+        "\tOptional.\n" \
+        "-q, --quiet\n" \
+        "\tDo not display the fused contents in the standard output.\n" \
+        "\tBy default, all contents are displayed.\n" \
         "\tOptional."
 }
 
@@ -93,15 +97,18 @@ main() {
         --output)
             set -- "$@" "-o"
             ;;
+        --quiet)
+            set -- "$@" "-q"
+            ;;
         *)
             set -- "$@" "${arg}"
             ;;
         esac
     done
 
-    local outputFilePath="" noIgnore=false
+    local outputFilePath="" noIgnore=false quiet=false
 
-    while getopts "hno:" option; do
+    while getopts "hno:q" option; do
         case "${option}" in
         h)
             usage && exit 0
@@ -111,6 +118,9 @@ main() {
             ;;
         o)
             outputFilePath="${OPTARG}"
+            ;;
+        q)
+            quiet=true
             ;;
         esac
     done
