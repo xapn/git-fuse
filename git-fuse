@@ -28,7 +28,11 @@ usage() {
 }
 
 store() {
-    [ -z "${output}" ] && exit 1 || cat | tee --append "${output}"
+    [ -z "${output}" ] && exit 1 || {
+        [ "${quiet}" == true ] \
+            && cat >> "${output}" \
+            || cat | tee --append "${output}"
+    }
 }
 
 printFileNameAsHeader() {
