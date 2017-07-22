@@ -31,7 +31,7 @@ printFileNameAsHeader() {
     echo -e \
         " =================================================================\n" \
         "File: ${fileName}\n" \
-        "================================================================="
+        "_________________________________________________________________"
 }
 
 whatToIgnore() {
@@ -48,7 +48,12 @@ gitFuse() {
     local output="${outputFilePath:=${DEFAULT_OUTPUT}}"
 
     rm -f "${output}"
-    for file in $(find . -type f ! -regex "$(whatToIgnore)"); do
+
+    local toFuse=($(find . -type f ! -regex "$(whatToIgnore)"))
+    echo "Target contents for fusion:"
+    printf "\t%s\n" "${toFuse[@]}"
+
+    for file in "${toFuse[@]}"; do
         echo "$(printFileNameAsHeader ${file})" | tee --append "${output}"
         cat  "${file}" | tee --append "${output}"
     done
