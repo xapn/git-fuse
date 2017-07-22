@@ -35,10 +35,12 @@ printFileNameAsHeader() {
 }
 
 whatToIgnore() {
-    if [ -f ".gitignore" ]; then
+    if [ "${noIgnore}" == "true" ] || [ ! -f ".gitignore" ]; then
+        local readyForFind="${TO_BE_IGNORED_BY_DEFAULT}"
+    elif [ -f ".gitignore" ]; then
         local ignoredByGit=$(sed -r '/^(#.*)?$/d' .gitignore | paste -sd '|')
+        local readyForFind=$(echo "${ignoredByGit}" | sed 's/\./\\./g; s/\*/.*/g; s/|/\\|/g')"\|${TO_BE_IGNORED_BY_DEFAULT}"
     fi
-    local readyForFind=$(echo "${ignoredByGit}" | sed 's/\./\\./g; s/\*/.*/g; s/|/\\|/g')"\|${TO_BE_IGNORED_BY_DEFAULT}"
     echo "${readyForFind}"
 }
 
