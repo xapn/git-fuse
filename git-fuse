@@ -23,6 +23,10 @@ usage() {
         "\tOptional."
 }
 
+store() {
+    [ -z "${output}" ] && exit 1 || cat | tee --append "${output}"
+}
+
 printFileNameAsHeader() {
     # FUNC ARGS
     local fileName="$1"
@@ -31,7 +35,7 @@ printFileNameAsHeader() {
     echo -e \
         " =================================================================\n" \
         "File: ${fileName}\n" \
-        "================================================================="
+        "_________________________________________________________________"
 }
 
 whatToIgnore() {
@@ -44,13 +48,31 @@ whatToIgnore() {
     echo "${readyForFind}"
 }
 
+listTargetFiles() {
+    # FUNC ARGS
+    local files=("${@:1:$#-1}") output="${@:(-1)}"
+    # END  ARGS
+
+    echo "Target files for fusion:" | store
+    {
+        for file in "${files[@]}"; do
+            printf "%s %s %s\n" "${file}" $(wc -l "${file}" | awk '{ print $1 }') "lines"
+        done;
+    } | column -t | store
+    echo | store
+}
+
 gitFuse() {
     local output="${outputFilePath:=${DEFAULT_OUTPUT}}"
 
     rm -f "${output}"
-    for file in $(find . -type f ! -regex "$(whatToIgnore)"); do
-        echo "$(printFileNameAsHeader ${file})" | tee --append "${output}"
-        cat  "${file}" | tee --append "${output}"
+
+    local toFuse=($(find . -type f ! -regex "$(whatToIgnore)"))
+    listTargetFiles "${toFuse[@]}" "${output}"
+
+    for file in "${toFuse[@]}"; do
+        echo "$(printFileNameAsHeader ${file})" | store
+        cat  "${file}" | store
     done
 }
 
